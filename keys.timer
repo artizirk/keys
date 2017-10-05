@@ -1,0 +1,9 @@
+[Unit]
+Description=Update SSH keys once a day
+
+[Timer]
+OnCalendar=daily
+Unit=keys.service
+
+[Install]
+WantedBy=timers.target
