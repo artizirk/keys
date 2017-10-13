@@ -17,12 +17,12 @@ from github import Github
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 if not GITHUB_TOKEN:
-    print("GITHUB_TOKEN environment variable is not set.")
+    print("GITHUB_TOKEN environment variable is not set.", file=sys.stderr)
     sys.exit(1)
 
 KEYS_CONFIG = Path(os.environ.get("KEYS_CONFIG", "keys.ini"))
-if not KEYS_CONFIG.exists():
-    print('Config file "{}" does not exist. Specify one in KEYS_CONFIG environment variable.'.format(KEYS_CONFIG))
+if not KEYS_CONFIG.is_file():
+    print('Config file "{}" does not exist. Specify one in KEYS_CONFIG environment variable.'.format(KEYS_CONFIG), file=sys.stderr)
     sys.exit(1)
 
 
@@ -49,8 +49,7 @@ def get_org_members(org, teams=None):
 
 @lru_cache()
 def get_keys(user):
-    for key in user.get_keys():
-        yield key.key
+    return [key.key for key in user.get_keys()]
 
 
 
@@ -59,7 +58,29 @@ for endpoint, section in config.items():
         continue
     keys = set()
     members = set()
+
     print("Collecting keys for {}".format(endpoint))
+
+    include = section.get("include")
+    if include:
+        path = Path(include)
+        if not path.is_file():
+            print('The supplied include path "{}" does not exist or it is not a file.'.format(include), file=sys.stderr)
+            sys.exit(1)
+        print('Including keys from file "{}"'.format(include, section))
+        with path.open() as f:
+            for lineno, line in enumerate(f, start=1):
+                if line.startswith("#"):
+                    # ignore comments
+                    continue
+                parts = line.split()
+                if len(parts) < 2:
+                    print('The following line (no. {}) from include file "{}" appears to be invalid:'.format(lineno, include), file=sys.stderr)
+                    print(line, file=sys.stderr)
+                    sys.exit(1)
+                # if we got this far, then everything should be OK
+                keys.add("{} {}".format(*parts[:2]))
+
     org = section.get("org", "").strip()
     if org:
         teams = [team.strip() for team in section.get("teams", "").split(",") if team.strip()]
