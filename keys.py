@@ -69,9 +69,7 @@ for endpoint, section in config.items():
             sys.exit(1)
         print('Including keys from file "{}"'.format(include, section))
         with path.open() as f:
-            lineno = 0
-            for line in f:
-                lineno += 1
+            for lineno, line in enumerate(f, start=1):
                 if line.startswith("#"):
                     # ignore comments
                     continue
