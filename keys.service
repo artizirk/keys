@@ -4,8 +4,8 @@ Description=Update SSH keys
 [Service]
 Type=simple
 WorkingDirectory=/srv/http/keys
-Enviroment=GITHUB_TOKEN=
-Enviroment=KEYS_CONFIG=/etc/keys.ini
+Environment=GITHUB_TOKEN=
+Environment=KEYS_CONFIG=/etc/keys.ini
 ExecStart=/usr/bin/env python3 /usr/local/lib/keys.py
 
 [Install]

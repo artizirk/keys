@@ -1,14 +1,14 @@
 # Github ssh public key collector
 
 This script can be used to collect ssh public keys of users listed in
-`keys.ini` file and write them to a seperate file.
+`keys.ini` file and write them to a separate file.
 It is also possible to collect keys of users that
 are part of a Github organization.
 
 You can then use the generated files for keeping your ssh machines
 authorized_keys file up to date with changes to your user ssh keys.
 
-you could for example serve the key output folder over https and then
+You could for example serve the key output folder over https and then
 `curl https://youserver.com/keys/core-team > /root/.ssh/authorized_keys`
 in your target machine.
 
@@ -60,11 +60,11 @@ in your target machine.
     In each section, the `org` key can contain only a single Github
     Organization.
 
-    `teams` key can contain a list of coma (,) separated
-    list of teams who's keys will be included.
+    `teams` key can contain a list of comma (,) separated
+    list of teams whose keys will be included.
 
-    `users` key can contain a list of coma (,) seperated list of any
-    github user. User does not have to be apart of any team.
+    `users` key can contain a list of comma (,) separated list of any
+    Github users. User does not have to be a part of any team.
 
 5. Running it
 
