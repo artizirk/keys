@@ -9,6 +9,7 @@ NamedUser.__hash__ = lambda self: hash(self.id)
 
 import os
 import sys
+from functools import lru_cache
 from pathlib import Path
 from configparser import ConfigParser
 
@@ -27,7 +28,7 @@ if not KEYS_CONFIG.exists():
 
 github = Github(GITHUB_TOKEN)
 github.get_rate_limit()
-print("You have used {} requests of {}".format(*github.rate_limiting))
+print("You have {} request(s) left of {}".format(*github.rate_limiting))
 
 config = ConfigParser()
 config.read(str(KEYS_CONFIG))
@@ -46,6 +47,7 @@ def get_org_members(org, teams=None):
         for member in organization.get_members():
             yield member
 
+@lru_cache()
 def get_keys(user):
     for key in user.get_keys():
         yield key.key
@@ -55,23 +57,23 @@ def get_keys(user):
 for endpoint, section in config.items():
     if endpoint == "DEFAULT":
         continue
-    keys = []
-    members = []
+    keys = set()
+    members = set()
     print("Collecting keys for {}".format(endpoint))
     org = section.get("org", "").strip()
     if org:
         teams = [team.strip() for team in section.get("teams", "").split(",") if team.strip()]
-        members.extend(get_org_members(org, teams))
+        members.update(get_org_members(org, teams))
     if section.get("users", "").strip():
         for user in section["users"].split(","):
             user = user.strip()
             if not user:
                 continue
-            members.append(github.get_user(user))
+            members.add(github.get_user(user))
 
-    for member in set(members):
+    for member in members:
         print("  Collecting {} keys".format(member.login))
-        keys.extend(get_keys(member))
+        keys.update(get_keys(member))
 
     if not keys:
         continue
