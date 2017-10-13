@@ -8,6 +8,7 @@ from github.NamedUser import NamedUser
 NamedUser.__hash__ = lambda self: hash(self.id)
 
 import os
+import sys
 from pathlib import Path
 from configparser import ConfigParser
 
@@ -15,13 +16,13 @@ from github import Github
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 if not GITHUB_TOKEN:
-    print("GITHUB_TOKEN environment variable unset")
-    exit(1)
+    print("GITHUB_TOKEN environment variable is not set.")
+    sys.exit(1)
 
 KEYS_CONFIG = Path(os.environ.get("KEYS_CONFIG", "keys.ini"))
 if not KEYS_CONFIG.exists():
-    print('Config file "{}" does not exist. Specify one in KEYS_CONFIG environment variable.')
-    exit(1)
+    print('Config file "{}" does not exist. Specify one in KEYS_CONFIG environment variable.'.format(KEYS_CONFIG))
+    sys.exit(1)
 
 
 github = Github(GITHUB_TOKEN)
@@ -29,7 +30,7 @@ github.get_rate_limit()
 print("You have used {} requests of {}".format(*github.rate_limiting))
 
 config = ConfigParser()
-config.read(KEYS_CONFIG)
+config.read(str(KEYS_CONFIG))
 
 
 def get_org_members(org, teams=None):
