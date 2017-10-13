@@ -9,6 +9,7 @@ NamedUser.__hash__ = lambda self: hash(self.id)
 
 import os
 import sys
+from functools import lru_cache
 from pathlib import Path
 from configparser import ConfigParser
 
@@ -46,6 +47,7 @@ def get_org_members(org, teams=None):
         for member in organization.get_members():
             yield member
 
+@lru_cache()
 def get_keys(user):
     for key in user.get_keys():
         yield key.key
